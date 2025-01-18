@@ -1,77 +1,66 @@
 package com.teste.itau.service.impl;
 
-import com.teste.itau.config.rabbitMq.RabbitMQConfig;
-import com.teste.itau.dto.ProdutoRequest;
+import com.teste.itau.dto.RequisicaoProduto;
 import com.teste.itau.entity.Produtos;
 import com.teste.itau.repository.ProdutoRepository;
 import com.teste.itau.service.ProdutoService;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.teste.itau.service.messaging.PublicadorDeMensagemProduto;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
-import java.util.logging.Logger;
 
 @Service
 public class ProdutoServiceImpl implements ProdutoService {
 
-    @Autowired
-    private ProdutoRepository ProdutosRepository;
+    private final ProdutoRepository produtoRepository;
+    private final PublicadorDeMensagemProduto publicadorDeMensagem;
 
-    @Autowired
-    private ProdutoRepository produtoRepository;
-
-    @Autowired
-    private RabbitTemplate rabbitTemplate;
-
+    public ProdutoServiceImpl(ProdutoRepository produtoRepository, PublicadorDeMensagemProduto publicadorDeMensagem) {
+        this.produtoRepository = produtoRepository;
+        this.publicadorDeMensagem = publicadorDeMensagem;
+    }
 
     @Override
     public List<Produtos> getAllProdutos() {
-        return ProdutosRepository.findAll();
+        return produtoRepository.findAll();
     }
-
 
     @Override
     public Produtos getProdutoById(Long id) {
-        return ProdutosRepository.findById(id)
+        return produtoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Produto não encontrado: " + id));
     }
 
     @Override
-    public Produtos createProduto(ProdutoRequest produtoRequest) {
+    public Produtos createProduto(RequisicaoProduto requisicaoProduto) {
         Produtos produto = Produtos.builder()
-                .name(produtoRequest.getName())
-                .price(produtoRequest.getPrice())
-                .category(produtoRequest.getCategory())
-                .description(produtoRequest.getDescription())
+                .name(requisicaoProduto.getNome())
+                .price(requisicaoProduto.getPreco())
+                .category(requisicaoProduto.getCategoria())
+                .description(requisicaoProduto.getDescricao())
                 .build();
 
-        Produtos savedProduto = produtoRepository.save(produto);
+        Produtos produtoSalvo = produtoRepository.save(produto);
 
-        // Envia mensagem para a fila
-        rabbitTemplate.convertAndSend(RabbitMQConfig.QUEUE_NAME, "Produto criado: " + savedProduto);
+        // Publica a mensagem após salvar
+        publicadorDeMensagem.publicarMensagemProdutoCriado(produtoSalvo);
 
-        return savedProduto;
+        return produtoSalvo;
     }
 
-
     @Override
-    public Produtos updateProduto(Long id, ProdutoRequest produtoRequest) {
-        Produtos existingProdutos = getProdutoById(id);
-        Logger.getGlobal().info(existingProdutos.toString());
-        existingProdutos = Produtos.builder()
-                .id(id)
-                .name(produtoRequest.getName())
-                .price(produtoRequest.getPrice())
-                .category(produtoRequest.getCategory())
-                .description(produtoRequest.getDescription())
-                .build();
+    public Produtos updateProduto(Long id, RequisicaoProduto requisicaoProduto) {
+        Produtos produtoExistente = getProdutoById(id);
 
-        return ProdutosRepository.save(existingProdutos);
+        produtoExistente.setName(requisicaoProduto.getNome());
+        produtoExistente.setPrice(requisicaoProduto.getPreco());
+        produtoExistente.setCategory(requisicaoProduto.getCategoria());
+        produtoExistente.setDescription(requisicaoProduto.getDescricao());
+
+        return produtoRepository.save(produtoExistente);
     }
 
     @Override
     public void deleteProduto(Long id) {
-        ProdutosRepository.deleteById(id);
+        produtoRepository.deleteById(id);
     }
 }

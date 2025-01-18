@@ -1,116 +1,111 @@
 package com.teste.itau.controller;
 
-import com.teste.itau.dto.ProdutoRequest;
+import com.teste.itau.dto.RequisicaoProduto;
 import com.teste.itau.entity.Produtos;
 import com.teste.itau.service.ProdutoService;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-
-import org.springframework.http.HttpStatus;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
 public class ProdutoControllerTest {
 
     @InjectMocks
-    private ProdutoController target;
+    private ProdutoController produtoController;
 
     @Mock
     private ProdutoService produtoService;
 
     @Test
-    void CrieProdutoSucesso() {
-        ProdutoRequest produtoRequest = new ProdutoRequest();
-        produtoRequest.setName("Teste Produto");
-        produtoRequest.setCategory("Eletrocomputador");
-        produtoRequest.setDescription("Eletrocomputador novidade");
-        produtoRequest.setPrice(99.99);
-
-        Produtos produto = Produtos.builder()
-                .id(1L)
-                .name(produtoRequest.getName())
-                .category(produtoRequest.getCategory())
-                .description(produtoRequest.getDescription())
-                .price(produtoRequest.getPrice())
-                .build();
-
-        when(produtoService.createProduto(any(ProdutoRequest.class))).thenReturn(produto);
-
-        ResponseEntity<Produtos> response = target.createProduto(produtoRequest);
-
-        Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        Assertions.assertNotNull(response.getBody());
-        Assertions.assertEquals(produto.getName(), response.getBody().getName());
-    }
-
-    @Test
-    void GetAllProdutosSucesso() {
-        Produtos produto1 = Produtos.builder().id(1L).name("Produto1").build();
-        Produtos produto2 = Produtos.builder().id(2L).name("Produto2").build();
+    void deveRetornarTodosOsProdutos() {
+        Produtos produto1 = Produtos.builder().id(1L).name("Produto 1").build();
+        Produtos produto2 = Produtos.builder().id(2L).name("Produto 2").build();
 
         when(produtoService.getAllProdutos()).thenReturn(Arrays.asList(produto1, produto2));
 
-        ResponseEntity<List<Produtos>> response = target.getAllProdutos();
+        ResponseEntity<List<Produtos>> resposta = produtoController.obterTodosOsProdutos();
 
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertNotNull(response.getBody());
-        Assertions.assertEquals(2, response.getBody().size());
+        assertNotNull(resposta.getBody());
+        assertEquals(2, resposta.getBody().size());
     }
 
     @Test
-    void GetProdutoIdSucesso() {
-        Produtos produto = Produtos.builder().id(1L).name("Produto1").build();
+    void deveRetornarProdutoPorId() {
+        Produtos produto = Produtos.builder().id(1L).name("Produto 1").build();
 
         when(produtoService.getProdutoById(anyLong())).thenReturn(produto);
 
-        ResponseEntity<Produtos> response = target.getProdutosById(1L);
+        ResponseEntity<Produtos> resposta = produtoController.obterProdutoPorId(1L);
 
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertNotNull(response.getBody());
-        Assertions.assertEquals(produto.getName(), response.getBody().getName());
+        assertNotNull(resposta.getBody());
+        assertEquals("Produto 1", resposta.getBody().getName());
     }
 
     @Test
-    void UpdateProdutoSucesso() {
-        ProdutoRequest produtoRequest = new ProdutoRequest();
-        produtoRequest.setName("Updated Produto");
-        produtoRequest.setCategory("Updated Category");
-        produtoRequest.setDescription("Updated Description");
-        produtoRequest.setPrice(199.99);
+    void deveCriarProduto() {
+        RequisicaoProduto requisicaoProduto = new RequisicaoProduto();
+        requisicaoProduto.setNome("Novo Produto");
+        requisicaoProduto.setCategoria("Categoria");
+        requisicaoProduto.setDescricao("Descrição do Produto");
+        requisicaoProduto.setPreco(10.0);
 
-        Produtos updatedProduto = Produtos.builder()
+        Produtos produtoSalvo = Produtos.builder()
                 .id(1L)
-                .name(produtoRequest.getName())
-                .category(produtoRequest.getCategory())
-                .description(produtoRequest.getDescription())
-                .price(produtoRequest.getPrice())
+                .name(requisicaoProduto.getNome())
+                .category(requisicaoProduto.getCategoria())
+                .description(requisicaoProduto.getDescricao())
+                .price(requisicaoProduto.getPreco())
                 .build();
 
-        when(produtoService.updateProduto(anyLong(), any(ProdutoRequest.class))).thenReturn(updatedProduto);
+        when(produtoService.createProduto(any(RequisicaoProduto.class))).thenReturn(produtoSalvo);
 
-        ResponseEntity<Produtos> response = target.updateProduto(1L, produtoRequest);
+        ResponseEntity<Produtos> resposta = produtoController.criarProduto(requisicaoProduto);
 
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertNotNull(response.getBody());
-        Assertions.assertEquals(updatedProduto.getName(), response.getBody().getName());
+        assertNotNull(resposta.getBody());
+        assertEquals("Novo Produto", resposta.getBody().getName());
     }
 
     @Test
-    void DeleteProdutoSucesso() {
+    void deveAtualizarProduto() {
+        RequisicaoProduto requisicaoProduto = new RequisicaoProduto();
+        requisicaoProduto.setNome("Produto Atualizado");
+        requisicaoProduto.setCategoria("Nova Categoria");
+        requisicaoProduto.setDescricao("Nova Descrição");
+        requisicaoProduto.setPreco(20.0);
+
+        Produtos produtoAtualizado = Produtos.builder()
+                .id(1L)
+                .name(requisicaoProduto.getNome())
+                .category(requisicaoProduto.getCategoria())
+                .description(requisicaoProduto.getDescricao())
+                .price(requisicaoProduto.getPreco())
+                .build();
+
+        when(produtoService.updateProduto(anyLong(), any(RequisicaoProduto.class))).thenReturn(produtoAtualizado);
+
+        ResponseEntity<Produtos> resposta = produtoController.atualizarProduto(1L, requisicaoProduto);
+
+        assertNotNull(resposta.getBody());
+        assertEquals("Produto Atualizado", resposta.getBody().getName());
+    }
+
+    @Test
+    void deveDeletarProduto() {
         doNothing().when(produtoService).deleteProduto(anyLong());
 
-        ResponseEntity<Void> response = target.deleteProduto(1L);
+        ResponseEntity<Void> resposta = produtoController.deletarProduto(1L);
 
-        Assertions.assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        verify(produtoService, times(1)).deleteProduto(anyLong());
+        assertEquals(204, resposta.getStatusCodeValue());
+        verify(produtoService, times(1)).deleteProduto(1L);
     }
 }

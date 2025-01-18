@@ -1,54 +1,61 @@
 package com.teste.itau.controller;
 
-
-import com.teste.itau.dto.ProdutoRequest;
+import com.teste.itau.dto.RequisicaoProduto;
 import com.teste.itau.entity.Produtos;
 import com.teste.itau.service.ProdutoService;
-import org.springframework.beans.factory.annotation.Autowired;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import javax.validation.Valid;
 import java.util.List;
 
+@Tag(name = "Produtos", description = "Gerenciamento de produtos")
 @RestController
-@RequestMapping("/api/Produtos")
+@RequestMapping("/api/produtos")
+@Validated
 public class ProdutoController {
 
-    @Autowired
-    public ProdutoService produtoService;
+    private final ProdutoService produtoService;
 
-    @ResponseBody
+    public ProdutoController(ProdutoService produtoService) {
+        this.produtoService = produtoService;
+    }
+
+    @Operation(summary = "Listar todos os produtos", description = "Retorna uma lista de todos os produtos cadastrados.")
     @GetMapping
-    public ResponseEntity<List<Produtos>> getAllProdutos() {
-        return new ResponseEntity<>(produtoService.getAllProdutos(), HttpStatus.OK);
+    public ResponseEntity<List<Produtos>> obterTodosOsProdutos() {
+        List<Produtos> produtos = produtoService.getAllProdutos();
+        return ResponseEntity.ok(produtos);
     }
 
-    @ResponseBody
+    @Operation(summary = "Obter produto por ID", description = "Busca um produto pelo ID.")
     @GetMapping("/{id}")
-    public ResponseEntity<Produtos> getProdutosById(@PathVariable Long id) {
-        return new ResponseEntity<>(produtoService.getProdutoById(id), HttpStatus.OK);
+    public ResponseEntity<Produtos> obterProdutoPorId(@PathVariable Long id) {
+        Produtos produto = produtoService.getProdutoById(id);
+        return ResponseEntity.ok(produto);
     }
 
-    @ResponseBody
+    @Operation(summary = "Criar um novo produto", description = "Cadastra um novo produto no sistema.")
     @PostMapping
-    public ResponseEntity<Produtos> createProduto(@RequestBody ProdutoRequest produtoRequest) {
-        Produtos produto = produtoService.createProduto(produtoRequest);
-        return new ResponseEntity<>(produto, HttpStatus.CREATED);
+    public ResponseEntity<Produtos> criarProduto(@Valid @RequestBody RequisicaoProduto requisicaoProduto) {
+        Produtos novoProduto = produtoService.createProduto(requisicaoProduto);
+        return new ResponseEntity<>(novoProduto, HttpStatus.CREATED);
     }
 
-
-    @ResponseBody
+    @Operation(summary = "Atualizar produto", description = "Atualiza os dados de um produto existente.")
     @PutMapping("/{id}")
-    public ResponseEntity<Produtos> updateProduto(@PathVariable Long id, @RequestBody ProdutoRequest produtoRequest) {
-        Produtos updatedProduto = produtoService.updateProduto(id, produtoRequest);
-        return new ResponseEntity<>(updatedProduto, HttpStatus.OK);
+    public ResponseEntity<Produtos> atualizarProduto(@PathVariable Long id, @Valid @RequestBody RequisicaoProduto requisicaoProduto) {
+        Produtos produtoAtualizado = produtoService.updateProduto(id, requisicaoProduto);
+        return ResponseEntity.ok(produtoAtualizado);
     }
 
-    @ResponseBody
+    @Operation(summary = "Deletar produto", description = "Remove um produto pelo ID.")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProduto(@PathVariable Long id) {
+    public ResponseEntity<Void> deletarProduto(@PathVariable Long id) {
         produtoService.deleteProduto(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return ResponseEntity.noContent().build();
     }
 }
-
