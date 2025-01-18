@@ -1,5 +1,6 @@
 package com.teste.itau.controller;
 
+import com.teste.itau.config.jwt.JwtRequired;
 import com.teste.itau.dto.RequisicaoProduto;
 import com.teste.itau.entity.Produtos;
 import com.teste.itau.service.ProdutoService;
@@ -7,11 +8,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import javax.validation.Valid;
+
 import java.util.List;
 
 @Tag(name = "Produtos", description = "Gerenciamento de produtos")
@@ -31,6 +33,7 @@ public class ProdutoController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista de produtos retornada com sucesso")
     })
+    @JwtRequired
     public ResponseEntity<List<Produtos>> obterTodosOsProdutos() {
         List<Produtos> produtos = produtoService.getAllProdutos();
         return ResponseEntity.ok(produtos);
@@ -47,6 +50,7 @@ public class ProdutoController {
         return ResponseEntity.ok(produto);
     }
 
+    @JwtRequired
     @Operation(summary = "Criar um novo produto", description = "Cadastra um novo produto no sistema.")
     @PostMapping
     @ApiResponses(value = {

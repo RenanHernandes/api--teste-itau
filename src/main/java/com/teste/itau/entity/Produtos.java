@@ -1,8 +1,7 @@
 package com.teste.itau.entity;
 
+import jakarta.persistence.*;
 import lombok.*;
-
-import javax.persistence.*;
 
 @Data
 @Builder
