@@ -33,10 +33,10 @@ public class ProdutoServiceImpl implements ProdutoService {
     @Override
     public Produtos createProduto(RequisicaoProduto requisicaoProduto) {
         Produtos produto = Produtos.builder()
-                .name(requisicaoProduto.getNome())
-                .price(requisicaoProduto.getPreco())
-                .category(requisicaoProduto.getCategoria())
-                .description(requisicaoProduto.getDescricao())
+                .nome(requisicaoProduto.getNome())
+                .preco(requisicaoProduto.getPreco())
+                .categoria(requisicaoProduto.getCategoria())
+                .descricao(requisicaoProduto.getDescricao())
                 .build();
 
         Produtos produtoSalvo = produtoRepository.save(produto);
@@ -51,10 +51,10 @@ public class ProdutoServiceImpl implements ProdutoService {
     public Produtos updateProduto(Long id, RequisicaoProduto requisicaoProduto) {
         Produtos produtoExistente = getProdutoById(id);
 
-        produtoExistente.setName(requisicaoProduto.getNome());
-        produtoExistente.setPrice(requisicaoProduto.getPreco());
-        produtoExistente.setCategory(requisicaoProduto.getCategoria());
-        produtoExistente.setDescription(requisicaoProduto.getDescricao());
+        produtoExistente.setNome(requisicaoProduto.getNome());
+        produtoExistente.setPreco(requisicaoProduto.getPreco());
+        produtoExistente.setCategoria(requisicaoProduto.getCategoria());
+        produtoExistente.setDescricao(requisicaoProduto.getDescricao());
 
         return produtoRepository.save(produtoExistente);
     }

@@ -28,8 +28,8 @@ public class ProdutoControllerTest {
 
     @Test
     void deveRetornarTodosOsProdutos() {
-        Produtos produto1 = Produtos.builder().id(1L).name("Produto 1").build();
-        Produtos produto2 = Produtos.builder().id(2L).name("Produto 2").build();
+        Produtos produto1 = Produtos.builder().id(1L).nome("Produto 1").build();
+        Produtos produto2 = Produtos.builder().id(2L).nome("Produto 2").build();
 
         when(produtoService.getAllProdutos()).thenReturn(Arrays.asList(produto1, produto2));
 
@@ -41,14 +41,14 @@ public class ProdutoControllerTest {
 
     @Test
     void deveRetornarProdutoPorId() {
-        Produtos produto = Produtos.builder().id(1L).name("Produto 1").build();
+        Produtos produto = Produtos.builder().id(1L).nome("Produto 1").build();
 
         when(produtoService.getProdutoById(anyLong())).thenReturn(produto);
 
         ResponseEntity<Produtos> resposta = produtoController.obterProdutoPorId(1L);
 
         assertNotNull(resposta.getBody());
-        assertEquals("Produto 1", resposta.getBody().getName());
+        assertEquals("Produto 1", resposta.getBody().getNome());
     }
 
     @Test
@@ -61,10 +61,10 @@ public class ProdutoControllerTest {
 
         Produtos produtoSalvo = Produtos.builder()
                 .id(1L)
-                .name(requisicaoProduto.getNome())
-                .category(requisicaoProduto.getCategoria())
-                .description(requisicaoProduto.getDescricao())
-                .price(requisicaoProduto.getPreco())
+                .nome(requisicaoProduto.getNome())
+                .categoria(requisicaoProduto.getCategoria())
+                .descricao(requisicaoProduto.getDescricao())
+                .preco(requisicaoProduto.getPreco())
                 .build();
 
         when(produtoService.createProduto(any(RequisicaoProduto.class))).thenReturn(produtoSalvo);
@@ -72,7 +72,7 @@ public class ProdutoControllerTest {
         ResponseEntity<Produtos> resposta = produtoController.criarProduto(requisicaoProduto);
 
         assertNotNull(resposta.getBody());
-        assertEquals("Novo Produto", resposta.getBody().getName());
+        assertEquals("Novo Produto", resposta.getBody().getNome());
     }
 
     @Test
@@ -85,10 +85,10 @@ public class ProdutoControllerTest {
 
         Produtos produtoAtualizado = Produtos.builder()
                 .id(1L)
-                .name(requisicaoProduto.getNome())
-                .category(requisicaoProduto.getCategoria())
-                .description(requisicaoProduto.getDescricao())
-                .price(requisicaoProduto.getPreco())
+                .nome(requisicaoProduto.getNome())
+                .categoria(requisicaoProduto.getCategoria())
+                .descricao(requisicaoProduto.getDescricao())
+                .preco(requisicaoProduto.getPreco())
                 .build();
 
         when(produtoService.updateProduto(anyLong(), any(RequisicaoProduto.class))).thenReturn(produtoAtualizado);
@@ -96,7 +96,7 @@ public class ProdutoControllerTest {
         ResponseEntity<Produtos> resposta = produtoController.atualizarProduto(1L, requisicaoProduto);
 
         assertNotNull(resposta.getBody());
-        assertEquals("Produto Atualizado", resposta.getBody().getName());
+        assertEquals("Produto Atualizado", resposta.getBody().getNome());
     }
 
     @Test

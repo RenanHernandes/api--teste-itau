@@ -33,8 +33,8 @@ public class ProdutoServiceImplTest {
 
     @Test
     void deveRetornarTodosOsProdutos() {
-        Produtos produto1 = Produtos.builder().id(1L).name("Produto 1").build();
-        Produtos produto2 = Produtos.builder().id(2L).name("Produto 2").build();
+        Produtos produto1 = Produtos.builder().id(1L).nome("Produto 1").build();
+        Produtos produto2 = Produtos.builder().id(2L).nome("Produto 2").build();
 
         when(produtoRepository.findAll()).thenReturn(Arrays.asList(produto1, produto2));
 
@@ -46,14 +46,14 @@ public class ProdutoServiceImplTest {
 
     @Test
     void deveRetornarProdutoPorId() {
-        Produtos produto = Produtos.builder().id(1L).name("Produto 1").build();
+        Produtos produto = Produtos.builder().id(1L).nome("Produto 1").build();
 
         when(produtoRepository.findById(anyLong())).thenReturn(Optional.of(produto));
 
         Produtos resultado = produtoService.getProdutoById(1L);
 
         assertNotNull(resultado);
-        assertEquals("Produto 1", resultado.getName());
+        assertEquals("Produto 1", resultado.getNome());
     }
 
     @Test
@@ -66,10 +66,10 @@ public class ProdutoServiceImplTest {
 
         Produtos produtoSalvo = Produtos.builder()
                 .id(1L)
-                .name(requisicaoProduto.getNome())
-                .category(requisicaoProduto.getCategoria())
-                .description(requisicaoProduto.getDescricao())
-                .price(requisicaoProduto.getPreco())
+                .nome(requisicaoProduto.getNome())
+                .categoria(requisicaoProduto.getCategoria())
+                .descricao(requisicaoProduto.getDescricao())
+                .preco(requisicaoProduto.getPreco())
                 .build();
 
         when(produtoRepository.save(any(Produtos.class))).thenReturn(produtoSalvo);
@@ -77,13 +77,13 @@ public class ProdutoServiceImplTest {
         Produtos resultado = produtoService.createProduto(requisicaoProduto);
 
         assertNotNull(resultado);
-        assertEquals("Novo Produto", resultado.getName());
+        assertEquals("Novo Produto", resultado.getNome());
         verify(publicadorDeMensagem, times(1)).publicarMensagemProdutoCriado(produtoSalvo);
     }
 
     @Test
     void deveAtualizarProduto() {
-        Produtos produtoExistente = Produtos.builder().id(1L).name("Produto Antigo").build();
+        Produtos produtoExistente = Produtos.builder().id(1L).nome("Produto Antigo").build();
         RequisicaoProduto requisicaoProduto = new RequisicaoProduto();
         requisicaoProduto.setNome("Produto Atualizado");
         requisicaoProduto.setCategoria("Nova Categoria");
@@ -96,7 +96,7 @@ public class ProdutoServiceImplTest {
         Produtos resultado = produtoService.updateProduto(1L, requisicaoProduto);
 
         assertNotNull(resultado);
-        assertEquals("Produto Atualizado", resultado.getName());
+        assertEquals("Produto Atualizado", resultado.getNome());
     }
 
     @Test

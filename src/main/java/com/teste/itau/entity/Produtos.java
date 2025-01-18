@@ -17,14 +17,14 @@ public class Produtos {
     private Long id;
 
     @Column(name = "NAME", nullable = false)
-    private String name;
+    private String nome;
 
     @Column(name = "CATEGORY", nullable = false)
-    private String category;
+    private String categoria;
 
     @Column(name = "PRICE", nullable = false)
-    private Double price;
+    private Double preco;
 
     @Column(name = "DESCRIPTION", nullable = false)
-    private String description;
+    private String descricao;
 }

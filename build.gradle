@@ -25,6 +25,9 @@ dependencies {
 
 	"RabbitMQ"
 	implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
+	"Flyway"
+	implementation 'org.flywaydb:flyway-core'
 }
 
 test {
