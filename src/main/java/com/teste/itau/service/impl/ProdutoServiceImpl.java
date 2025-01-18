@@ -1,9 +1,11 @@
 package com.teste.itau.service.impl;
 
+import com.teste.itau.config.rabbitMq.RabbitMQConfig;
 import com.teste.itau.dto.ProdutoRequest;
 import com.teste.itau.entity.Produtos;
 import com.teste.itau.repository.ProdutoRepository;
 import com.teste.itau.service.ProdutoService;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,13 @@ public class ProdutoServiceImpl implements ProdutoService {
 
     @Autowired
     private ProdutoRepository ProdutosRepository;
+
+    @Autowired
+    private ProdutoRepository produtoRepository;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
 
     @Override
     public List<Produtos> getAllProdutos() {
@@ -30,14 +39,19 @@ public class ProdutoServiceImpl implements ProdutoService {
 
     @Override
     public Produtos createProduto(ProdutoRequest produtoRequest) {
-        Produtos entity = Produtos.builder()
+        Produtos produto = Produtos.builder()
                 .name(produtoRequest.getName())
                 .price(produtoRequest.getPrice())
                 .category(produtoRequest.getCategory())
                 .description(produtoRequest.getDescription())
                 .build();
 
-        return ProdutosRepository.save(entity);
+        Produtos savedProduto = produtoRepository.save(produto);
+
+        // Envia mensagem para a fila
+        rabbitTemplate.convertAndSend(RabbitMQConfig.QUEUE_NAME, "Produto criado: " + savedProduto);
+
+        return savedProduto;
     }
 
 
